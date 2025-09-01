@@ -16,6 +16,7 @@ function App() {
         <Route path="/dashboard" element={<ProtectedRoute type="protected"><Dashboard /></ProtectedRoute>} />
       </Routes>
     </Router>
+    
      
     </div>
     </>
