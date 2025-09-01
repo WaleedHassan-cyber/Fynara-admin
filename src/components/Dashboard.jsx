@@ -1,6 +1,6 @@
 import React from 'react'
 import SideBar from './SideBar.jsx'
-import '../assets/styles/SideBar.css'
+import '../assets/styles/Sidebar.css'
 const Dashboard = () => {
   return (
     <div>
