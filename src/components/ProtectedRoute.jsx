@@ -1,10 +1,11 @@
 import { Loader } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-
+import { useLocation } from "react-router-dom";
 export default function ProtectedRoute({ children, type = "protected" }) {
   const [auth, setAuth] = useState(null);
-   const URL = import.meta.env.VITE_API_URL
+   const URL = import.meta.env.VITE_API_URL;
+   const location = useLocation(); 
   useEffect(() => {
     fetch(`${URL}/api/check-auth`, {
       credentials: "include",
@@ -14,7 +15,7 @@ export default function ProtectedRoute({ children, type = "protected" }) {
         else setAuth(false);
       })
       .catch(() => setAuth(false));
-  }, [window.location.pathname]);
+  }, [location.pathname]);
 
   if (auth === null) return <><Loader/></>;
 
