@@ -3,7 +3,7 @@ import Modal from "./Modal.jsx";
 import Loader from "./Loader.jsx";
 
 const Settings = () => {
-  const URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL;
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [user, setUser] = useState(() => {
@@ -37,7 +37,7 @@ const Settings = () => {
     if (profileImage) formData.append("image", profileImage);
 
     try {
-      const res = await fetch(`${URL}/api/change-password`, {
+      const res = await fetch(`${API_URL}/api/change-password`, {
         method: "POST",
         body: formData, // No Content-Type header, browser sets it automatically for FormData
         credentials: "include",
