@@ -1,17 +1,18 @@
 import React, { useState } from "react";
-import Modal from "./Modal.jsx"
-import Loader from "./Loader.jsx"
-
+import Modal from "./Modal.jsx";
+import Loader from "./Loader.jsx";
 
 const Settings = () => {
-  const URL = import.meta.env.VITE_API_URL
+  const URL = import.meta.env.VITE_API_URL;
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user:detail"))
-  );
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem("user:detail");
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [email, setEmail] = useState(user?.email || "");
   const [profileImage, setProfileImage] = useState(null);
-  const [email, setEmail] = useState(user.email);
   const [loader, setLoader] = useState(false);
   const [modal, setModal] = useState(false);
   const [previewImage, setPreviewImage] = useState(
