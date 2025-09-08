@@ -7,7 +7,9 @@ import {
   KeyRoundIcon,
   Settings,
   LogOut,
+  Loader,
 } from "lucide-react";
+import Loader from "./Loader.jsx"
 
 const Home = ({ setSelectedSection }) => {
   const URL = import.meta.env.VITE_API_URL
@@ -15,8 +17,10 @@ const Home = ({ setSelectedSection }) => {
   const [totalProduct, setTotalProduct] = useState("0");
   const [totalOrder, setTotalOrder] = useState("0");
   const [totalUser, setTotalUser] = useState("0");
+  const [loader, setLoader] = useState(false);
 const [user, setUser] = useState(JSON.parse(localStorage.getItem("user:detail")));
   useEffect(() => {
+    setLoader(true);
     try {
       const fetchData = async () => {
         const response = await fetch(
@@ -33,12 +37,17 @@ const [user, setUser] = useState(JSON.parse(localStorage.getItem("user:detail"))
           setTotalProduct(data.totalProducts);
           setTotalOrder(data.totalOrders);
           setTotalUser(data.totalCustomers);
+          setLoader(false);
         } else {
+          setLoader(false);
           console.error("Error fetching data:", data.message);
         }
       };
       fetchData();
-    } catch (error) {}
+    } catch (error) {
+      setLoader(false);
+      console.error("Error fetching data:", error);
+    }
   }, []);
 
   return (
@@ -208,6 +217,7 @@ const [user, setUser] = useState(JSON.parse(localStorage.getItem("user:detail"))
           <Users className="w-9 h-9 text-white opacity-80" />
         </div>
       </div>
+      {loader && <Loader/>}
     </div>
   );
 };

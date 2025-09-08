@@ -8,7 +8,7 @@ import CreateProduct from "./Create.jsx";
 import AllProduct from "./AllProduct.jsx";
 import History from "./History.jsx";
 import { useNavigate } from "react-router-dom";
-import { Loader } from "lucide-react";
+import Loader  from "./Loader.jsx";
 import Modal from "./Modal.jsx";
 const SideBar = () => {
   const [openSide, setOpenSide] = useState(false);
