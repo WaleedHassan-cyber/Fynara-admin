@@ -3,7 +3,7 @@ import "../assets/styles/Card.css";
 import Modal from "./Modal.jsx";
 import Loader from "./Loader.jsx";
 const CreateProduct = () => {
-  const URL = import.meta.env.VITE_API_URL
+  const API_URL = import.meta.env.VITE_API_URL
   const [images, setImages] = useState([]);
   const [label, setLabel] = useState("");
   const [productName, setProductName] = useState("");
@@ -61,7 +61,7 @@ const handleSubmit = async (e) => {
   formData.append("price", price);
 
   try {
-    const res = await fetch(`${URL}/api/create`, {
+    const res = await fetch(`${API_URL}/api/create`, {
       method: "POST",
       body: formData,
     });
