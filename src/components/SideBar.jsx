@@ -47,7 +47,7 @@ const SideBar = () => {
         setTimeout(() => {
           setModal(false);
         }, 2000);
-        navigate("/login");
+        navigate("/");
       } else {
         setLoading(false);
         console.error("Logout failed");
