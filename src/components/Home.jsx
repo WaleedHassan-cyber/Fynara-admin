@@ -7,7 +7,6 @@ import {
   KeyRoundIcon,
   Settings,
   LogOut,
-  Loader,
 } from "lucide-react";
 import Loader from "./Loader.jsx"
 
