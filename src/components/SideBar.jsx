@@ -14,7 +14,7 @@ const SideBar = () => {
   const [openSide, setOpenSide] = useState(false);
   const [selectedSection, setSelectedSection] = useState("home");
   const [loading, setLoading] = useState(false);
-  const { modal, setModal } = useState(false);
+  const [modal, setModal ] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const openBar = () => {
@@ -31,10 +31,16 @@ const SideBar = () => {
       sidebar.classList.add("open");
     }
   };
-  const handleLogout = () => {
+  const openModal = () => {
+    setModal(true);
+  }
+  const handleClose = () => {
+    setModal(false);
+  }
+  const handleDelete = async () => {
     setLoading(true);
     try {
-      const res = fetch(`${API_URL}/api/logout`, {
+      const res = await fetch(`${API_URL}/api/logout`, {
         method: "GET",
         credentials: "include",
       });
@@ -134,17 +140,14 @@ const SideBar = () => {
                 <div className="job">By Waleed</div>
               </div>
             </div>
-            <div className="log_out" onClick={handleLogout}>
+            <div className="log_out" onClick={openModal}>
               <i className="bx bx-log-out" id="log_out" />
             </div>
           </li>
         </ul>
         {loading && <Loader />}
         {modal && (
-          <Modal
-            success={true} // true or false
-            message="Logout"
-          />
+          <Modal onClose={handleClose} onConfirm={handleDelete} text="Logout" />
         )}
       </div>
 

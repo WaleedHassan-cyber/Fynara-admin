@@ -344,7 +344,7 @@ const AllProduct = () => {
         </button>
       </div>
       {showModal && (
-        <Modal onClose={handleClose} onConfirm={handleDelete} text="Product" />
+        <Modal onClose={handleClose} onConfirm={handleDelete} text="Delete This Product" />
       )}
       {successModal && (
         <Modal

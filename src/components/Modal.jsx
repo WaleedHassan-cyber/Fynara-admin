@@ -123,7 +123,7 @@ const Modal = ({ onClose, onConfirm, text, success, message }) => {
                   }}
                 >
                   <path
-                    stroke="currentColor"
+                    stroke="white"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
@@ -139,7 +139,7 @@ const Modal = ({ onClose, onConfirm, text, success, message }) => {
                     marginBottom: "20px",
                   }}
                 >
-                  Are you sure you want to delete this {text}?
+                  Are you sure you want to <span className="text-red-600 font-extrabold">{text}?</span>
                 </h3>
 
                 <button
