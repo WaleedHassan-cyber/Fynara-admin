@@ -4,10 +4,10 @@ import { Navigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 export default function ProtectedRoute({ children, type = "protected" }) {
   const [auth, setAuth] = useState(null);
-   const URL = import.meta.env.VITE_API_URL;
+   const API_URL = import.meta.env.VITE_API_URL;
    const location = useLocation(); 
   useEffect(() => {
-    fetch(`${URL}/api/check-auth`, {
+    fetch(`${API_URL}/api/check-auth`, {
       credentials: "include",
     })
       .then((res) => {
