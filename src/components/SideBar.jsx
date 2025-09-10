@@ -9,7 +9,8 @@ import AllProduct from "./AllProduct.jsx";
 import History from "./History.jsx";
 import { useNavigate } from "react-router-dom";
 import Loader  from "./Loader.jsx";
-import Modal from "./Modal.jsx";
+import Modal from "./Modal.jsx"
+import {ReceiptText} from "lucide-react";
 const SideBar = () => {
   const [openSide, setOpenSide] = useState(false);
   const [selectedSection, setSelectedSection] = useState("home");
@@ -111,17 +112,17 @@ const SideBar = () => {
 
           <li onClick={() => setSelectedSection("saved")}>
             <a href="#!">
-              <i className="bx  bxs-t-shirt"></i>
+              <i class="bx bxs-t-shirt" ></i>
               <span className="links_name">All Product</span>
             </a>
             <span className="tooltip">All Products</span>
           </li>
           <li onClick={() => setSelectedSection("history")}>
             <a href="#!">
-              <i className="bx bx-heart" />
-              <span className="links_name">Wish List</span>
+             <i class='bx  bx-file'  ></i> 
+              <span className="links_name">Reports</span>
             </a>
-            <span className="tooltip">Wish List</span>
+            <span className="tooltip">Reports</span>
           </li>
 
           <li onClick={() => setSelectedSection("settings")}>

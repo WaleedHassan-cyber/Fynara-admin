@@ -242,7 +242,11 @@
 
 .sidebar.open .profile #log_out {
   width: 50px;
-  background: red;
+  background: none;
+}
+.sidebar.open .profile #log_out:hover{
+  border-radius: 0 6px 6px 0;
+  background: rgb(230, 36, 36);
 }
 
 .home-section {
