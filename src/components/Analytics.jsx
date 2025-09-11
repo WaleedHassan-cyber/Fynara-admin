@@ -6,15 +6,18 @@ import {
   Users,
   Pencil,
 } from "lucide-react";
+import Loader from "./Loader.jsx";
 import ProgressCircle from "./ProgressCircle.jsx";
+import { toast,ToastContainer  } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Analytics = () => {
-  const URL = import.meta.env.VITE_API_URL
+  const URL = import.meta.env.VITE_API_URL;
   // Modal state and input states
   const [modalOpen, setModalOpen] = useState(false);
   const [inputTarget, setInputTarget] = useState("");
   const [durationOption, setDurationOption] = useState(30); // default 30 days duration
-
+  const [loader, setloader] = useState(false);
   // Target and reset date state
   const [target, setTarget] = useState(0); // initial target $75k
   const [resetDate, setResetDate] = useState(null);
@@ -31,39 +34,44 @@ const Analytics = () => {
   const remainingPercent = 100 - percentage;
 
   // Update countdown timer every second
-  useEffect(() => {
-    const fetchTarget = async () => {
-      try {
-        const res = await fetch(`${URL}/api/target`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
+ useEffect(() => {
+  setloader(true);
 
-        const data = await res.json(); // 👈 ye zaroori hai
+  const fetchTarget = async () => {
+    try {
+      const res = await fetch(`${URL}/api/target`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
 
-        console.log("response:", data);
+      const data = await res.json(); // 👈 zaroori hai
+      console.log("response:", data);
 
-        setAllTotal(data.allTotal);
+      setAllTotal(data.allTotal);
 
-        if (data.activeTarget) {
-          setTarget(data.activeTarget.amount);
-          setResetDate(new Date(data.activeTarget.endDate));
-          setTargetTotal(data.activeTarget.targetTotal);
-        } else {
-          setTarget(0);
-          setResetDate(null);
-          setTargetTotal(0);
-        }
-      } catch (err) {
-        console.error("Error fetching target:", err);
+      if (data.activeTarget) {
+        setTarget(data.activeTarget.amount);
+        setResetDate(new Date(data.activeTarget.endDate));
+        setTargetTotal(data.activeTarget.targetTotal);
+      } else {
+        setTarget(0);
+        setResetDate(null);
+        setTargetTotal(0);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching target:", err);
+    } finally {
+      // ✅ loader yahan band hoga
+      setloader(false);
+    }
+  };
 
-    fetchTarget();
-  }, []);
+  fetchTarget();
+}, []);
+
   // countdown logic
   useEffect(() => {
     const updateCountdown = () => {
@@ -100,8 +108,10 @@ const Analytics = () => {
   }, [resetDate]);
 
   // Confirm target with specific duration button handler
+
   const handleConfirm = async () => {
     const numTarget = Number(inputTarget);
+
     if (!isNaN(numTarget) && numTarget > 0) {
       setTarget(numTarget);
 
@@ -109,7 +119,7 @@ const Analytics = () => {
       let resetTimeMs;
 
       if (durationOption === "1min") {
-        resetTimeMs = 1 * 60 * 1000; // 👈 1 minute
+        resetTimeMs = 1 * 60 * 1000; // 1 minute
       } else if (durationOption === "15days") {
         resetTimeMs = 15 * 24 * 60 * 60 * 1000;
       } else if (durationOption === "30days") {
@@ -117,7 +127,7 @@ const Analytics = () => {
       } else if (durationOption === "60days") {
         resetTimeMs = 60 * 24 * 60 * 60 * 1000;
       } else {
-        resetTimeMs = 30 * 24 * 60 * 60 * 1000; // default 30 din
+        resetTimeMs = 30 * 24 * 60 * 60 * 1000; // default 30 days
       }
 
       const newResetDate = new Date(now.getTime() + resetTimeMs);
@@ -130,35 +140,46 @@ const Analytics = () => {
         endDate: newResetDate.toISOString(),
       };
 
-      try {
-        const response = await fetch(`${URL}/api/set-target`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
+      // 👉 Wrap fetch in toast.promise
+      await toast.promise(
+        (async () => {
+          const response = await fetch(`${URL}/api/set-target`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
 
-        if (!response.ok) {
+          if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || "Failed to set target");
+          }
+
           const data = await response.json();
-          alert(`Error: ${data.message || "Failed to set target"}`);
-          return;
+          console.log("Target saved:", data.target);
+
+          // Close modal and reset input fields
+          setModalOpen(false);
+          setInputTarget("");
+
+          return "Target saved successfully!";
+        })(),
+        {
+          pending: "Creating your target...",
+          success: "Target created successfully",
+          error: {
+            render({ data }) {
+              return data?.message || "Error while saving target ❌";
+            },
+          },
         }
-
-        const data = await response.json();
-        console.log("Target saved:", data.target);
-
-        // Close modal and reset input fields
-        setModalOpen(false);
-        setInputTarget("");
-      } catch (error) {
-        console.error("Network error:", error);
-        alert("Network error while setting target.");
-      }
+      );
     } else {
-      alert("Please enter a valid positive number for the target.");
+      toast.error("Please enter a valid positive number for the target.");
     }
   };
+
   return (
     <div
       className="bg-transparent min-w-0 w-full max-w-full overflow-auto"
@@ -361,7 +382,7 @@ const Analytics = () => {
           alignItems: "center",
           gap: "6px",
           cursor: "pointer",
-          zIndex: 1000,
+          zIndex: 998,
           maxWidth: 140,
           textAlign: "center",
           fontSize: 13,
@@ -390,7 +411,8 @@ const Analytics = () => {
           />
         </div>
       </div>
-
+      <ToastContainer position="top-center" theme="dark" />
+      
       {/* Modal for setting target */}
       {modalOpen && (
         <div
@@ -485,6 +507,7 @@ const Analytics = () => {
           </div>
         </div>
       )}
+      {loader && <Loader/>}
     </div>
   );
 };
