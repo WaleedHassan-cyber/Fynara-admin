@@ -3,23 +3,26 @@ import "../assets/styles/Card.css";
 import Modal from "./Modal.jsx";
 import Loader from "./Loader.jsx";
 const CreateProduct = () => {
-  const API_URL = import.meta.env.VITE_API_URL
+  const API_URL = import.meta.env.VITE_API_URL;
   const [images, setImages] = useState([]);
   const [label, setLabel] = useState("");
   const [productName, setProductName] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [desc, setDesc] = useState("");
+  const [oldPrice, setOldPrice] = useState("");
+  const [brand, setBrand] = useState("");
+  const [reviews, setReviews] = useState(0);
+  const [colors, setColors] = useState([]);
+  const [sizes, setSizes] = useState([]);
+
   const [previewImage, setPreviewImage] = useState("");
   const [previewImages, setPreviewImages] = useState([]);
   const [mainImageIndex, setMainImageIndex] = useState(0); // default = 0
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [loader, setLoader] = useState(false)
+  const [loader, setLoader] = useState(false);
   const [successModal, setSuccessModal] = useState(false);
 
-
-
-  
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 4) {
@@ -34,64 +37,68 @@ const CreateProduct = () => {
     setMainImageIndex(0); // default to first
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!productName || !category || !price || !desc || images.length === 0) {
-    alert("Please fill all fields and upload at least one image.");
-    return;
-  }
-  setLoader(true);
-  setIsSubmitting(true); // disable the button
-
-  const formData = new FormData();
-
-  const reorderedImages = [
-    images[mainImageIndex],
-    ...images.filter((_, i) => i !== mainImageIndex),
-  ];
-
-  reorderedImages.forEach((img) => {
-    formData.append("images", img);
-  });
-
-  formData.append("label", label);
-  formData.append("productName", productName);
-  formData.append("type", category);
-  formData.append("desc", desc);
-  formData.append("price", price);
-
-  try {
-    const res = await fetch(`${API_URL}/api/create`, {
-      method: "POST",
-      body: formData,
-    });
-    const data = await res.json();
-    if (data.success) {
-      setLabel("");
-      setProductName("");
-      setCategory("");
-      setPrice("");
-      setDesc("");
-      setImages([]);
-      setPreviewImage("");
-      setPreviewImages([]);
-      setMainImageIndex(0);
-      document.getElementById("imageInput").value = null;
-      setLoader(false);
-      setSuccessModal(true);
-      setLoader(false)
-      setTimeout(() => {
-        setSuccessModal(false);
-      }, 4000); // hide modal after 2 seconds
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!productName || !category || !price || !desc || images.length === 0) {
+      alert("Please fill all fields and upload at least one image.");
+      return;
     }
-    console.log(data);
-  } catch (error) {
-    console.error("Error uploading product:", error);
-  } finally {
-    setIsSubmitting(false); // enable the button again
-  }
-};
+    setLoader(true);
+    setIsSubmitting(true); // disable the button
 
+    const formData = new FormData();
+
+    const reorderedImages = [
+      images[mainImageIndex],
+      ...images.filter((_, i) => i !== mainImageIndex),
+    ];
+
+    reorderedImages.forEach((img) => {
+      formData.append("images", img);
+    });
+
+    formData.append("label", label);
+    formData.append("productName", productName);
+    formData.append("type", category);
+    formData.append("desc", desc);
+    formData.append("price", price);
+    formData.append("oldPrice", oldPrice);
+    formData.append("brand", brand);
+    formData.append("reviews", reviews);
+    formData.append("colors", JSON.stringify(colors));
+    formData.append("sizes", JSON.stringify(sizes));
+
+    try {
+      const res = await fetch(`${API_URL}/api/create`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        setLabel("");
+        setProductName("");
+        setCategory("");
+        setPrice("");
+        setDesc("");
+        setImages([]);
+        setPreviewImage("");
+        setPreviewImages([]);
+        setMainImageIndex(0);
+        document.getElementById("imageInput").value = null;
+        setLoader(false);
+        setSuccessModal(true);
+        setLoader(false);
+        setTimeout(() => {
+          setSuccessModal(false);
+        }, 4000); // hide modal after 2 seconds
+      }
+      console.log(data);
+    } catch (error) {
+      console.error("Error uploading product:", error);
+    } finally {
+      setIsSubmitting(false); // enable the button again
+    }
+  };
 
   return (
     <div
@@ -331,6 +338,145 @@ const handleSubmit = async (e) => {
               placeholder="e.g. 1500"
             />
           </div>
+          {/* Old Price */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                fontSize: "14px",
+                fontWeight: "500",
+                color: "#4b5563",
+              }}
+            >
+              Old Price (PKR)
+            </label>
+            <input
+              type="number"
+              value={oldPrice}
+              onChange={(e) => setOldPrice(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "8px 16px",
+                border: "1px solid #d1d5db",
+                borderRadius: "8px",
+                outline: "none",
+              }}
+              placeholder="e.g. 2000"
+            />
+          </div>
+
+          {/* Brand */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                fontSize: "14px",
+                fontWeight: "500",
+                color: "#4b5563",
+              }}
+            >
+              Brand
+            </label>
+            <input
+              type="text"
+              value={brand}
+              onChange={(e) => setBrand(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "8px 16px",
+                border: "1px solid #d1d5db",
+                borderRadius: "8px",
+                outline: "none",
+              }}
+              placeholder="e.g. Apple, SKMEI..."
+            />
+          </div>
+
+          {/* Reviews */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                fontSize: "14px",
+                fontWeight: "500",
+                color: "#4b5563",
+              }}
+            >
+              Reviews Count
+            </label>
+            <input
+              type="number"
+              value={reviews}
+              onChange={(e) => setReviews(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "8px 16px",
+                border: "1px solid #d1d5db",
+                borderRadius: "8px",
+                outline: "none",
+              }}
+              placeholder="e.g. 120"
+            />
+          </div>
+
+          {/* Colors */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                fontSize: "14px",
+                fontWeight: "500",
+                color: "#4b5563",
+              }}
+            >
+              Colors (comma separated)
+            </label>
+            <input
+              type="text"
+              value={colors.join(",")}
+              onChange={(e) => setColors(e.target.value.split(","))}
+              style={{
+                width: "100%",
+                padding: "8px 16px",
+                border: "1px solid #d1d5db",
+                borderRadius: "8px",
+                outline: "none",
+              }}
+              placeholder="#D12B2B,#222222,#E6C3A5"
+            />
+          </div>
+
+          {/* Sizes */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                fontSize: "14px",
+                fontWeight: "500",
+                color: "#4b5563",
+              }}
+            >
+              Sizes (comma separated)
+            </label>
+            <input
+              type="text"
+              value={sizes.join(",")}
+              onChange={(e) => setSizes(e.target.value.split(","))}
+              style={{
+                width: "100%",
+                padding: "8px 16px",
+                border: "1px solid #d1d5db",
+                borderRadius: "8px",
+                outline: "none",
+              }}
+              placeholder="XS,S,M,L"
+            />
+          </div>
 
           {/* Description */}
           <div>
@@ -347,6 +493,7 @@ const handleSubmit = async (e) => {
             </label>
             <textarea
               rows={4}
+              value={desc}
               style={{
                 width: "100%",
                 padding: "8px 16px",
@@ -454,13 +601,12 @@ const handleSubmit = async (e) => {
         </div>
       </div>
       {successModal && (
-              <Modal
-                success={true} // true or false
-                message="Product Created"
-              />
-        )}
-        {loader && <Loader />}       
-      
+        <Modal
+          success={true} // true or false
+          message="Product Created"
+        />
+      )}
+      {loader && <Loader />}
     </div>
   );
 };
