@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import OrderCard from "./OrderCard.jsx";
 import Modal from "./Modal.jsx";
 const Orders = () => {
-  const URL = import.meta.env.VITE_API_URL
+  const URL = import.meta.env.VITE_API_URL;
   const [progressFilter, setProgressFilter] = useState("All");
   const [orders, setOrders] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -12,60 +12,68 @@ const Orders = () => {
   const [successModal, setSuccessModal] = useState(false);
 
   //Api call for delete order
-  const handleDeleteOrder = async (orderId)=>{
+  const handleDeleteOrder = async (orderId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/delete-order/${orderId}`,{
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
+      const res = await fetch(
+        `http://localhost:5000/api/delete-order/${orderId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      })
-      const data= await res.json();
+      );
+      const data = await res.json();
       if (!res.ok) {
         console.error("Failed to update status:", data.message);
         return false;
       }
-      setOrders((prevOrders) => prevOrders.filter(order => order._id !== orderId));
+      setOrders((prevOrders) =>
+        prevOrders.filter((order) => order._id !== orderId)
+      );
       setSuccessModal(true); // Show success modal
-      console.log("open");
+      // console.log("open");
       setTimeout(() => {
         setSuccessModal(false); // Hide success modal after 2 seconds
-        console.log("close");
+        // console.log("close");
       }, 4000);
-    } catch (error) {
-      
-    }
-  }
+    } catch (error) {}
+  };
 
-
-
- // API call to update order status
-  const updateOrderStatus = async (orderId, newStatus) => {
+  // API call to update order status
+  const updateOrderStatus = async (orderId, userId, newStatus, amount) => {
     try {
-      const res = await fetch(`${URL}/api/update-status/${orderId}`, {
+      const bodyData =
+        newStatus.toLowerCase() === "delivered"
+          ? { status: newStatus, amount }
+          : { status: newStatus };
+
+      const res = await fetch(`${URL}/api/update-status/${orderId}/${userId}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: newStatus }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bodyData),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
         console.error("Failed to update status:", data.message);
+        alert(data.message || "Failed to update order status");
         return false;
       }
 
-      // Update order status locally to reflect immediately
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
+      // ✅ Update frontend instantly
+      setOrders((prev) =>
+        prev.map((order) =>
           order._id === orderId ? { ...order, status: newStatus } : order
         )
       );
+
+      alert(data.message || "Order status updated successfully");
       return true;
-    } catch (error) {
-      console.error("Error updating order status:", error);
+    } catch (err) {
+      console.error("Error updating order status:", err);
+      alert("Something went wrong while updating status");
       return false;
     }
   };
@@ -76,7 +84,7 @@ const Orders = () => {
       setLoading(true);
       try {
         const res = await fetch(
-          `${URL}/api/orders?page=${currentPage}&limit=${ordersPerPage}`
+          `${URL}/api/orders?page=${currentPage}&limit=${ordersPerPage}&status=${progressFilter}`
         );
         const data = await res.json();
         setOrders(data.orders || []);
@@ -88,12 +96,7 @@ const Orders = () => {
       }
     };
     fetchOrders();
-  }, [currentPage]);
-
-  const filteredOrders = orders.filter((order) => {
-    if (progressFilter === "All") return true;
-    return order.status === progressFilter;
-  });
+  }, [currentPage, progressFilter]);
 
   const handlePageChange = (pageNumber) => {
     if (pageNumber < 1 || pageNumber > totalPages) return;
@@ -109,9 +112,25 @@ const Orders = () => {
       if (currentPage <= 4) {
         pages.push(1, 2, 3, 4, 5, "...", totalPages);
       } else if (currentPage >= totalPages - 3) {
-        pages.push(1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+        pages.push(
+          1,
+          "...",
+          totalPages - 4,
+          totalPages - 3,
+          totalPages - 2,
+          totalPages - 1,
+          totalPages
+        );
       } else {
-        pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
+        pages.push(
+          1,
+          "...",
+          currentPage - 1,
+          currentPage,
+          currentPage + 1,
+          "...",
+          totalPages
+        );
       }
     }
     return pages;
@@ -121,13 +140,23 @@ const Orders = () => {
 
   return (
     <div className="w-[100%]" style={{ padding: "24px" }}>
-      <h1 className="text-[24px] font-semibold text-gray-400" style={{ marginBottom: "24px" }}>
+      <h1
+        className="text-[24px] font-semibold text-gray-400"
+        style={{ marginBottom: "24px" }}
+      >
         Home / <span className="text-[#4F46E5] font-serif">Orders</span>
       </h1>
 
       {/* Filters */}
       <div style={{ display: "flex", gap: "8px", marginBottom: "24px" }}>
-        {["All", "Order Placed", "Packing", "Shipped", "Delivered", "Cancelled"].map((type) => (
+        {[
+          "All",
+          "Order Placed",
+          "Packing",
+          "Shipped",
+          "Delivered",
+          "Cancelled",
+        ].map((type) => (
           <button
             key={type}
             onClick={() => {
@@ -150,27 +179,41 @@ const Orders = () => {
       </div>
 
       {/* Order Cards */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "15px 3px", width: "95%", marginBottom: "24px" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px 3px",
+          width: "95%",
+          marginBottom: "24px",
+        }}
+      >
         {loading ? (
           <p>Loading orders...</p>
-        ) : filteredOrders.length > 0 ? (
-          filteredOrders.map((order, index) => (
+        ) : orders.length > 0 ? (
+          orders.map((order, index) => (
             <OrderCard
               key={order._id}
               title={order.products?.[0]?.productName || "N/A"}
               name={order.user?.username || "Unknown"}
-              address="123 Main St, City, Country"
-              phone="1234567890"
+              address={order.address || "123 Main St, City, Country"}
+              phone={order.phone || "1234567890"}
               items={order.products?.length || 0}
-              paymentMethod="Credit Card"
+              paymentMethod={order.paymentMethod || "Credit Card"}
               paymentStatus={order.status}
               date={new Date(order.createdAt).toLocaleDateString()}
               price={order.totalAmount}
               products={order.products}
-              onDelete={()=>handleDeleteOrder(order._id)} 
               progressStatus={order.status}
-              onStatusChange={(newStatus) => updateOrderStatus(order._id, newStatus)}
-              
+              onDelete={() => handleDeleteOrder(order._id)}
+              onStatusChange={(newStatus) =>
+                updateOrderStatus(
+                  order._id,
+                  order.user?._id,
+                  newStatus,
+                  order.totalAmount
+                )
+              }
             />
           ))
         ) : (
@@ -190,7 +233,9 @@ const Orders = () => {
 
         {paginationGroup.map((item, index) =>
           item === "..." ? (
-            <span key={index} style={{ margin: "0 6px" }}>...</span>
+            <span key={index} style={{ margin: "0 6px" }}>
+              ...
+            </span>
           ) : (
             <button
               key={index}

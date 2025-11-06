@@ -30,7 +30,7 @@ const OrderCard = ({
   const [showModal, setShowModal] = useState(false);
 
   const handleDeleteClick = () => {
-    console.log("open modal");
+    // console.log("open modal");
     setShowModal(true);
   };
 
@@ -78,7 +78,7 @@ const OrderCard = ({
               <li key={item.productId}>
                 <p className="text-sm text-gray-300">
                   {item.productName} - Quantity: {item.quantity} - Price: $
-                  {item.price}
+                  {item.price} - Size: {item.selectedSize} - Color: {item.selectedColor}
                 </p>
               </li>
             ))}
